@@ -52,6 +52,11 @@ A simple way to get the steps per day is to use aggregate():
 af<-aggregate(steps~date,data=df,sum)
 mn<-paste(round(mean(af$steps)))
 md<-paste(median(af$steps))
+paste(mn, md)
+```
+
+```
+## [1] "10766 10765"
 ```
 Here is the histogram using base graphics:
 
@@ -87,13 +92,32 @@ plot(d2,type='l',main='Steps by interval')
 > contains the maximum number of steps?
 
 
-That would be d2\$interval[which.max(d2$steps)]: 835. 
+The interval that contains the maxiumum number of steps would be : 
+
+```r
+d2$interval[which.max(d2$steps)]
+```
+
+```
+## [1] 835
+```
+
+Interval 835, which contains 206.17 steps. 
 
 ## Imputing missing values
 
 This section is about imputing missing values. 
 
 > 1. Calculate and report total number of missing values in the data set. 
+
+
+```r
+paste(sum(is.na(df$steps)), sum(is.na(df$date)), sum(is.na(df$interval)))
+```
+
+```
+## [1] "2304 0 0"
+```
 
 There are 2304 missing steps, 0 missing dates, and 0 missing intervals. 
 
@@ -102,19 +126,17 @@ There are 2304 missing steps, 0 missing dates, and 0 missing intervals.
 > 3. Create a new dataset that is equal to the original dataset but with the missing
 > data filled in. 
 
-Just some steps are missing. I'll fill in with mean across days for the same
-interval. We have already calculated that and stored it in d2$steps. The 
-easiest way I can think of to do the assignment is to just use a rep() on 
-d2 to get the lengths of the vectors to match and then assign with a 
-logical vector selector for the NA values: 
+Just some steps are missing. The new data set is df2. I'll fill in with 
+mean across days for the same interval. We have already calculated that 
+and stored it in d2$steps. The easiest way I can think of to do the 
+assignment is to just use a rep() on d2 to get the lengths of the vectors
+to match and then assign with a logical vector selector for the NA values: 
 
 
 ```r
 df2 <- df
 df2$steps[is.na(df2$steps[]) ] <- rep(d2$steps,61)[is.na(df2$steps)]
 ```
-
-The new data set is df2. 
 
 > 4. Make a histogram. Calculate and report mean and median. Do these values
 > differ from the first part of the assignment?
@@ -128,6 +150,11 @@ Same code as above:
 af2<-aggregate(steps~date,data=df2,sum)
 mn2<-paste(round(mean(af2$steps)))
 md2<-paste(round(median(af2$steps)))
+paste(mn2, md2)
+```
+
+```
+## [1] "10766 10766"
 ```
 Here is the histogram using base graphics:
 
@@ -136,7 +163,8 @@ Here is the histogram using base graphics:
 hist(af2$steps,xlab='Steps per day',main='Histogram of steps per day')
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+
 
 The mean number of steps per day is now 10766. The median number of steps
 per day is now 10766.  The changes are very minimal. The median is no 
@@ -153,7 +181,8 @@ that was used for imputation.
 
 I'll use the imputed data set (df2) for this. 
 
-The panel plot seems a lot easier with dplr and ggplot2: 
+The panel plot seems a lot easier to do with dplr and ggplot2 than it is 
+to do with base graphics and aggregate: 
 
 
 ```r
@@ -168,11 +197,12 @@ colnames(df2)[4]<-'wd'
 library(dplyr)
 library(ggplot2)
 # group, summarize, panel line plot by facet. 
-df2 %>% group_by(wd,interval) %>% summarize(m=mean(steps)) %>% 
-    ggplot(aes(x=interval, y=m))+geom_line()+facet_wrap(~wd,ncol=1)
+df2 %>% group_by(wd,interval) %>% summarize(steps=mean(steps)) %>% 
+    ggplot(aes(x=interval, y=steps))+geom_line()+facet_wrap(~wd,ncol=1)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
 
 There are significant differences between weekday and weekend activity. 
+
 
