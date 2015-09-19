@@ -1,10 +1,5 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-author: Eric Vaitl
-output: 
-  html_document: 
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
+Eric Vaitl  
 
 ## Loading and preprocessing the data
 
@@ -20,7 +15,8 @@ download.file() to fetch it.
 Once we know we have the data file, we can use read.table() to 
 load it: 
 
-```{r}
+
+```r
 # Fetch and load data, with minimal processing. 
 load_data <- function() {
     # Where we get data from 
@@ -51,19 +47,23 @@ df<-load_data()
 
 A simple way to get the steps per day is to use aggregate(): 
 
-```{r}
+
+```r
 af<-aggregate(steps~date,data=df,sum)
 mn<-paste(round(mean(af$steps)))
 md<-paste(median(af$steps))
 ```
 Here is the histogram using base graphics:
 
-```{r fig.width=5}
+
+```r
 hist(af$steps,xlab='Steps per day',main='Histogram of steps per day')
 ```
 
-The mean number of steps per day is `r mn`. The 
-median number of steps per day is `r md`.
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+The mean number of steps per day is 10766. The 
+median number of steps per day is 10765.
 
 I'm using paste() in the code to clean up the formatting of the 
 results of mean() and median(). If I don't do that I end up with ugly 
@@ -75,16 +75,19 @@ formatting for the numbers.
 > of steps taken, averaged across all days. 
 
 
-```{r}
+
+```r
 d2<-aggregate(steps~interval,data=df,mean)
 plot(d2,type='l',main='Steps by interval')
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 > 2. Which 5-minute interval, on average across all the days of the dataset, 
 > contains the maximum number of steps?
 
 
-That would be d2\$interval[which.max(d2$steps)]: `r d2$interval[which.max(d2$steps)]`. 
+That would be d2\$interval[which.max(d2$steps)]: 835. 
 
 ## Imputing missing values
 
@@ -92,7 +95,7 @@ This section is about imputing missing values.
 
 > 1. Calculate and report total number of missing values in the data set. 
 
-There are `r sum(is.na(df$steps))` missing steps, `r sum(is.na(df$date))` missing dates, and `r sum(is.na(df$interval))` missing intervals. 
+There are 2304 missing steps, 0 missing dates, and 0 missing intervals. 
 
 > 2. Devise a strategy for filling in all of the missing values in the dataset. 
 
@@ -105,7 +108,8 @@ easiest way I can think of to do the assignment is to just use a rep() on
 d2 to get the lengths of the vectors to match and then assign with a 
 logical vector selector for the NA values: 
 
-```{r}
+
+```r
 df2 <- df
 df2$steps[is.na(df2$steps[]) ] <- rep(d2$steps,61)[is.na(df2$steps)]
 ```
@@ -119,19 +123,23 @@ The new data set is df2.
 Same code as above: 
 
 
-```{r}
+
+```r
 af2<-aggregate(steps~date,data=df2,sum)
 mn2<-paste(round(mean(af2$steps)))
 md2<-paste(round(median(af2$steps)))
 ```
 Here is the histogram using base graphics:
 
-```{r fig.width=5}
+
+```r
 hist(af2$steps,xlab='Steps per day',main='Histogram of steps per day')
 ```
 
-The mean number of steps per day is now `r mn2`. The median number of steps
-per day is now `r md2`.  The changes are very minimal. The median is no 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+
+The mean number of steps per day is now 10766. The median number of steps
+per day is now 10766.  The changes are very minimal. The median is no 
 longer a round number because it appears to have picked up one of the means
 that was used for imputation. 
 
@@ -147,7 +155,8 @@ I'll use the imputed data set (df2) for this.
 
 The panel plot seems a lot easier with dplr and ggplot2: 
 
-```{r fig.width=6, message=FALSE}
+
+```r
 # Add the new factor
 df2<-cbind(df2, sapply(weekdays(df2$date), 
                        function(d){ 
@@ -162,6 +171,8 @@ library(ggplot2)
 df2 %>% group_by(wd,interval) %>% summarize(m=mean(steps)) %>% 
     ggplot(aes(x=interval, y=m))+geom_line()+facet_wrap(~wd,ncol=1)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
 
 There are significant differences between weekday and weekend activity. 
 
